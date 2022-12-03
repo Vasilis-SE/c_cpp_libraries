@@ -1,5 +1,3 @@
-#include "linked_list.hpp"
-
 template <typename V>
 int LinkedList<V>::getNumberOfNodes() {
     return this->num_nodes;

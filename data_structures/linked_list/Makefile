@@ -1,4 +1,5 @@
 CC = g++
+CFLAGS = -g -Wall
 
 # Naming
 SRC = src
@@ -11,44 +12,45 @@ OBJ_DIR = build
 
 # Path variables
 HOME = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 SRC_PATH = $(HOME)/$(SRC)
-INC_PATH = -I$($(SRC_PATH)/$(INCLUDES))
-H_PATH = -I$($(INC_PATH)/$(HEADERS))
-I_PATH = -I$($(INC_PATH)/$(IMPLEMENTATIONS))
+SRC_INC_PATH = $(SRC_PATH)/$(INCLUDES)
+SRC_H_PATH = $(SRC_INC_PATH)/$(HEADERS)
+SRC_I_PATH = $(SRC_INC_PATH)/$(IMPLEMENTATIONS)
+
 OBJ_PATH = $(HOME)/$(OBJ_DIR)
+OBJ_INC_PATH = $(OBJ_PATH)/$(INCLUDES)
+OBJ_H_PATH = $(OBJ_INC_PATH)/$(HEADERS)
+OBJ_I_PATH = $(OBJ_INC_PATH)/$(IMPLEMENTATIONS)
+
 BINARY_PATH = $(HOME)/$(BINARY_DIR)
 
 # Files variables
 SRC_FILES = $(wildcard $(SRC_PATH)/*.cpp)
-H_FILES = $(wildcard $(H_PATH)/*.hpp)
-I_FILES = $(wildcard $(I_PATH)/*.ipp)
+SRC_H_FILES = $(wildcard $(SRC_H_PATH)/*.hpp)
+SRC_I_FILES = $(wildcard $(SRC_I_PATH)/*.ipp)
+
 OBJ_FILES = $(patsubst $(SRC_PATH)/%.cpp, $(OBJ_PATH)/%.o, $(SRC_FILES))
+OBJ_H_FILES = $(wildcard $(OBJ_H_PATH)/*.hpp)
+OBJ_I_FILES = $(wildcard $(OBJ_I_PATH)/*.ipp)
 
 OUTPUT = $(BINARY_PATH)/$(BINARY).exe
 
-#Makefile rules
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp
-	$(CC) $(OBJ_PATH) -c -o $@ $<
+build_exe: 
+	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -g $(SRC_PATH)/main.cpp -o $(OUTPUT)
 
-$(OBJ_PATH)/$(INCLUDES)/$(IMPLEMENTATIONS)/%.o: $(OBJ_PATH)/$(INCLUDES)/$(HEADERS)/%.o
-	$(CC) $(I_PATH) -c -o $@ $<
+# Create necessary folders for build purpose
+foldering: 
+	mkdir $(BINARY_DIR)
+	# mkdir $(OBJ_DIR)
+	# mkdir $(OBJ_DIR)/$(INCLUDES)
+	# mkdir $(OBJ_DIR)/$(INCLUDES)/$(HEADERS)
+	# mkdir $(OBJ_DIR)/$(INCLUDES)/$(IMPLEMENTATIONS)
 
-$(OBJ_PATH)/$(INCLUDES)/$(HEADERS)/%.o:
-	$(CC) $(H_PATH) -c -o $@ $<
-
-$(OUTPUT): $(OBJ_FILES) Makefile
-	$(CC) $(OBJ_FILES) -o $(OUTPUT)
-
-# Makefile commands
+# Clean old folders and files for build purpose
 clean:
 	rm -rf $(OBJ_DIR)/
 	rm -rf $(BINARY_DIR)/
 	
-build:
-	mkdir $(BINARY_DIR)
-	mkdir $(OBJ_DIR)
-	mkdir $(OBJ_DIR)/$(INCLUDES)
-	mkdir $(OBJ_DIR)/$(INCLUDES)/$(HEADERS)
-	mkdir $(OBJ_DIR)/$(INCLUDES)/$(IMPLEMENTATIONS)
+all: clean foldering build_exe
 
-	$(OBJ_PATH)/%.o
