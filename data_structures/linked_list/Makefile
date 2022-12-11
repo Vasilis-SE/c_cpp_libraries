@@ -30,11 +30,34 @@ SRC_FILES = $(wildcard $(SRC_PATH)/*.cpp)
 SRC_H_FILES = $(wildcard $(SRC_H_PATH)/*.hpp)
 SRC_I_FILES = $(wildcard $(SRC_I_PATH)/*.ipp)
 
-OBJ_FILES = $(patsubst $(SRC_PATH)/%.cpp, $(OBJ_PATH)/%.o, $(SRC_FILES))
-OBJ_H_FILES = $(wildcard $(OBJ_H_PATH)/*.hpp)
-OBJ_I_FILES = $(wildcard $(OBJ_I_PATH)/*.ipp)
+OBJ_FILES= $(patsubst %/src/%, %/build/%, $(patsubst %.cpp, %.o, $(SRC_FILES)))    
+OBJ_H_FILES= $(patsubst %/src/%, %/build/%, $(patsubst %.hpp, %.o, $(SRC_H_FILES)))    
+OBJ_I_FILES= $(patsubst %/src/%, %/build/%, $(patsubst %.ipp, %.o, $(SRC_I_FILES)))    
 
 OUTPUT = $(BINARY_PATH)/$(BINARY).exe
+
+
+# ------- Rules ---------
+
+
+
+# Build object file(-s) for src folder
+$(OBJ_FILES): $(SRC_FILES)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Build object file(-s) for headers folder
+$(OBJ_H_FILES): $(SRC_H_FILES)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Build object file(-s) for templates folder
+$(OBJ_I_FILES): $(SRC_I_FILES)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+
+build_objects: $(OBJ_H_FILES)
+	$(CC) -o $@ $^ $(CFLAGS) -lm
+
+
 
 build_exe: 
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -g $(SRC_PATH)/main.cpp -o $(OUTPUT)
@@ -42,15 +65,15 @@ build_exe:
 # Create necessary folders for build purpose
 foldering: 
 	mkdir $(BINARY_DIR)
-	# mkdir $(OBJ_DIR)
-	# mkdir $(OBJ_DIR)/$(INCLUDES)
-	# mkdir $(OBJ_DIR)/$(INCLUDES)/$(HEADERS)
-	# mkdir $(OBJ_DIR)/$(INCLUDES)/$(IMPLEMENTATIONS)
+	mkdir $(OBJ_DIR)
+	mkdir $(OBJ_DIR)/$(INCLUDES)
+	mkdir $(OBJ_DIR)/$(INCLUDES)/$(HEADERS)
+	mkdir $(OBJ_DIR)/$(INCLUDES)/$(IMPLEMENTATIONS)
 
 # Clean old folders and files for build purpose
 clean:
 	rm -rf $(OBJ_DIR)/
 	rm -rf $(BINARY_DIR)/
 	
-all: clean foldering build_exe
+all: clean foldering build_objects
 
