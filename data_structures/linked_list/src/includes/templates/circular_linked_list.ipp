@@ -1,8 +1,10 @@
+#ifndef CIRCULAR_LINKED_LIST_IPP
+#define CIRCULAR_LINKED_LIST_IPP
+
 #include <stdbool.h>  
 #include <stdlib.h>
 #include <iostream>
 
-#include "node.hpp"
 #include "circular_linked_list.hpp"
 
 template <typename V> 
@@ -84,3 +86,6 @@ void CircularLinkedList<V>::display() {
     // Display the final node's value
     std::cout << "\t => [" << &(*current_node) << "] " << current_node->getValue() << '\n';
 }
+
+
+#endif

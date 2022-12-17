@@ -9,6 +9,7 @@ IMPLEMENTATIONS = templates
 BINARY_DIR = bin
 BINARY = linked_list
 OBJ_DIR = build
+LIB_DIR = lib
 
 # Path variables
 HOME = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -30,34 +31,28 @@ SRC_FILES = $(wildcard $(SRC_PATH)/*.cpp)
 SRC_H_FILES = $(wildcard $(SRC_H_PATH)/*.hpp)
 SRC_I_FILES = $(wildcard $(SRC_I_PATH)/*.ipp)
 
-OBJ_FILES= $(patsubst %/src/%, %/build/%, $(patsubst %.cpp, %.o, $(SRC_FILES)))    
-OBJ_H_FILES= $(patsubst %/src/%, %/build/%, $(patsubst %.hpp, %.o, $(SRC_H_FILES)))    
-OBJ_I_FILES= $(patsubst %/src/%, %/build/%, $(patsubst %.ipp, %.o, $(SRC_I_FILES)))    
+OBJ_FILES= $(subst src,build, $(patsubst %.cpp, %.o, $(SRC_FILES)))    
+OBJ_H_FILES= $(subst src,build, $(patsubst %.hpp, %.o, $(SRC_H_FILES)))    
+OBJ_I_FILES= $(subst src,build, $(patsubst %.ipp, %.o, $(SRC_I_FILES)))    
 
 OUTPUT = $(BINARY_PATH)/$(BINARY).exe
 
-
 # ------- Rules ---------
 
-
-
-# Build object file(-s) for src folder
+# Build object file(-s) for src folder 
 $(OBJ_FILES): $(SRC_FILES)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $< -o $@ 
 
 # Build object file(-s) for headers folder
 $(OBJ_H_FILES): $(SRC_H_FILES)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $< -o $@
 
 # Build object file(-s) for templates folder
 $(OBJ_I_FILES): $(SRC_I_FILES)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -x c++ -c $< -o $@ 
 
-
-build_objects: $(OBJ_H_FILES)
-	$(CC) -o $@ $^ $(CFLAGS) -lm
-
-
+build_objects: $(OBJ_H_FILES) $(OBJ_I_FILES) $(OBJ_FILES)
+# $(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $(SRC_PATH)/main.cpp -o $(OBJ_PATH)/main.o
 
 build_exe: 
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -g $(SRC_PATH)/main.cpp -o $(OUTPUT)
