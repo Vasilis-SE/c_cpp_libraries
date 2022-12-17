@@ -25,6 +25,7 @@ OBJ_H_PATH = $(OBJ_INC_PATH)/$(HEADERS)
 OBJ_I_PATH = $(OBJ_INC_PATH)/$(IMPLEMENTATIONS)
 
 BINARY_PATH = $(HOME)/$(BINARY_DIR)
+LIBRARY_PATH = $(HOME)/$(LIB_DIR)
 
 # Files variables
 SRC_FILES = $(wildcard $(SRC_PATH)/*.cpp)
@@ -51,24 +52,46 @@ $(OBJ_H_FILES): $(SRC_H_FILES)
 $(OBJ_I_FILES): $(SRC_I_FILES)
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -x c++ -c $< -o $@ 
 
-build_objects: $(OBJ_H_FILES) $(OBJ_I_FILES) $(OBJ_FILES)
+compile_source: $(OBJ_H_FILES) $(OBJ_I_FILES) $(OBJ_FILES)
 # $(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $(SRC_PATH)/main.cpp -o $(OBJ_PATH)/main.o
 
-build_exe: 
+generate_executable: 
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -g $(SRC_PATH)/main.cpp -o $(OUTPUT)
 
+lib_sll_linux: 
+	$(CC) -shared -o $(LIBRARY_PATH)/linux/libsll.so $(OBJ_H_PATH)/singly_linked_list.o
+
+lib_sll_windows: 
+	$(CC) -shared -o $(LIBRARY_PATH)/windows/libsll.dll $(OBJ_H_PATH)/singly_linked_list.o
+
 # Create necessary folders for build purpose
-foldering: 
-	mkdir $(BINARY_DIR)
+objects_foldering: 
 	mkdir $(OBJ_DIR)
 	mkdir $(OBJ_DIR)/$(INCLUDES)
 	mkdir $(OBJ_DIR)/$(INCLUDES)/$(HEADERS)
 	mkdir $(OBJ_DIR)/$(INCLUDES)/$(IMPLEMENTATIONS)
 
-# Clean old folders and files for build purpose
-clean:
-	rm -rf $(OBJ_DIR)/
-	rm -rf $(BINARY_DIR)/
-	
-all: clean foldering build_objects
+binaries_foldering:
+	mkdir $(BINARY_DIR)
 
+libraries_foldering: 
+	mkdir $(LIB_DIR)
+	mkdir $(LIB_DIR)/linux
+	mkdir $(LIB_DIR)/windows
+
+# Clean old folders and files for build purpose
+objects_clean:
+	rm -rf $(OBJ_DIR)/
+
+binaries_clean: 
+	rm -rf $(BINARY_DIR)/
+
+libraries_clean: 
+	rm -rf $(LIB_DIR)/
+
+# Processes that utilize that above targets.
+compile: objects_clean objects_foldering compile_source
+
+liblin: libraries_clean libraries_foldering lib_sll_linux
+
+libwin: libraries_clean libraries_foldering lib_sll_windows
