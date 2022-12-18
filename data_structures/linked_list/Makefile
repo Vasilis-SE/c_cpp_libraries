@@ -10,6 +10,7 @@ BINARY_DIR = bin
 BINARY = linked_list
 OBJ_DIR = build
 LIB_DIR = lib
+TEST_DIR = test
 
 # Path variables
 HOME = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -24,6 +25,7 @@ OBJ_INC_PATH = $(OBJ_PATH)/$(INCLUDES)
 OBJ_H_PATH = $(OBJ_INC_PATH)/$(HEADERS)
 OBJ_I_PATH = $(OBJ_INC_PATH)/$(IMPLEMENTATIONS)
 
+TEST_PATH = $(HOME)/$(TEST_DIR)
 BINARY_PATH = $(HOME)/$(BINARY_DIR)
 LIBRARY_PATH = $(HOME)/$(LIB_DIR)
 
@@ -34,7 +36,9 @@ SRC_I_FILES = $(wildcard $(SRC_I_PATH)/*.ipp)
 
 OBJ_FILES= $(subst src,build, $(patsubst %.cpp, %.o, $(SRC_FILES)))    
 OBJ_H_FILES= $(subst src,build, $(patsubst %.hpp, %.o, $(SRC_H_FILES)))    
-OBJ_I_FILES= $(subst src,build, $(patsubst %.ipp, %.o, $(SRC_I_FILES)))    
+OBJ_I_FILES= $(subst src,build, $(patsubst %.ipp, %.o, $(SRC_I_FILES)))  
+
+LIB_HOME = D:/repositories/c_cpp_libraries/data_structures/linked_list/lib/linux
 
 OUTPUT = $(BINARY_PATH)/$(BINARY).exe
 
@@ -53,13 +57,16 @@ $(OBJ_I_FILES): $(SRC_I_FILES)
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -x c++ -c $< -o $@ 
 
 compile_source: $(OBJ_H_FILES) $(OBJ_I_FILES) $(OBJ_FILES)
-# $(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $(SRC_PATH)/main.cpp -o $(OBJ_PATH)/main.o
+# $(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $(SRC_PATH)/main.cpp -o $(OBJ_PATH)/app.o
 
 generate_executable: 
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -g $(SRC_PATH)/main.cpp -o $(OUTPUT)
 
 lib_sll_linux: 
-	$(CC) -shared -o $(LIBRARY_PATH)/linux/libsll.so $(OBJ_H_PATH)/singly_linked_list.o
+	$(CC) -shared -fpic -o $(LIBRARY_PATH)/linux/libsll.so \
+		$(OBJ_I_PATH)/node.o \
+		$(OBJ_I_PATH)/linked_list.o \
+		$(OBJ_I_PATH)/singly_linked_list.o 
 
 lib_sll_windows: 
 	$(CC) -shared -o $(LIBRARY_PATH)/windows/libsll.dll $(OBJ_H_PATH)/singly_linked_list.o
@@ -95,3 +102,8 @@ compile: objects_clean objects_foldering compile_source
 liblin: libraries_clean libraries_foldering lib_sll_linux
 
 libwin: libraries_clean libraries_foldering lib_sll_windows
+
+test_env: 
+	$(CC) -c $(TEST_PATH)/main.cpp -o $(TEST_PATH)/main.o
+	$(CC) -o $(TEST_PATH)/main $(TEST_PATH)/main.o -l :libsll.so -L$(LIB_HOME)
+# $(CC) -o $(TEST_PATH)/main $(TEST_PATH)/main.o -l :libsll.so -L$(LIB_HOME) -Wl,-rpath,$(LIB_HOME)
