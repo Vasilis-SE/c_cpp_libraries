@@ -42,8 +42,6 @@ LIB_HOME = D:/repositories/c_cpp_libraries/data_structures/linked_list/lib/linux
 
 OUTPUT = $(BINARY_PATH)/$(BINARY).exe
 
-# ------- Rules ---------
-
 # Build object file(-s) for src folder 
 $(OBJ_FILES): $(SRC_FILES)
 	$(CC) -I $(SRC_H_PATH) -I $(SRC_I_PATH) -c $< -o $@ 
@@ -69,7 +67,10 @@ lib_sll_linux:
 		$(OBJ_I_PATH)/singly_linked_list.o 
 
 lib_sll_windows: 
-	$(CC) -shared -o $(LIBRARY_PATH)/windows/libsll.dll $(OBJ_H_PATH)/singly_linked_list.o
+	$(CC) -shared -o $(LIBRARY_PATH)/windows/libsll.dll \
+		$(OBJ_I_PATH)/node.o \
+		$(OBJ_I_PATH)/linked_list.o \
+		$(OBJ_I_PATH)/singly_linked_list.o 
 
 # Create necessary folders for build purpose
 objects_foldering: 
